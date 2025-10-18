@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct Canzone {
     char* titolo;
@@ -40,12 +41,7 @@ int main(void) {
                 lista=realloc(lista,sizeof(struct Canzone*)*quantita_array);
             }
             lista[cont]=NuovaCanzone;   //la salva nell' array
-                cont++;                 //aumenta il contatore totale delle canzoni
-
-            free(NuovaCanzone->titolo); //libera memoria della canzone appena creata
-            free(NuovaCanzone->nome_artista);
-            free(NuovaCanzone);
-            NuovaCanzone=NULL;
+                cont++;                 //aumenta il contatore totale delle canzone
         }
 
         if (input==2)   //mostra tutte le canzoni
@@ -54,6 +50,13 @@ int main(void) {
         }
 
     }while (input!=3);  //esce
+
+    for (int i = 0; i < cont; i++)
+    {
+        free(lista[i]->titolo);
+        free(lista[i]->nome_artista);
+        free(lista[i]);
+    }
     free(lista);
     lista = NULL;
 
@@ -71,7 +74,7 @@ void VisualizzaLibreria(struct Canzone** lista, int contatore)
 
     for (int i = 0; i < contatore; i++)
     {
-        printf("Titolo: %s; Autore: %s; Durata: %d : %d \n",(*(lista + i))->titolo, (*(lista + i))->nome_artista, (*(lista + i))->minuti, (*(lista + i))->secondi );
+        printf("Titolo: %s; Autore: %s; Durata: %d:%02d \n",(*(lista + i))->titolo, (*(lista + i))->nome_artista, (*(lista + i))->minuti, (*(lista + i))->secondi );
     }
 }
 
@@ -87,17 +90,35 @@ struct Canzone* RichiediCanzone()
 
     printf("Nome Canzone:\n");
     fgets(Canzone_da_returnare->titolo, 30, stdin);
+    Canzone_da_returnare->titolo[strcspn(Canzone_da_returnare->titolo, "\n")] = '\0';
 
     printf("Nome Autore:\n");
     fgets(Canzone_da_returnare->nome_artista, 30, stdin);
+    Canzone_da_returnare->nome_artista[strcspn(Canzone_da_returnare->nome_artista, "\n")] = '\0';
 
-    printf("Minuti durata:\n");
-    scanf("%d", &Canzone_da_returnare->minuti);
-    while (getchar() != '\n' );
+    do {
+        printf("Minuti durata:\n");
+        if (scanf("%d", &Canzone_da_returnare->minuti) != 1)
+        {
+            while (getchar() != '\n');  //pulisce e lo fa fallire per richiedere input
+            Canzone_da_returnare->minuti = -1;
+        }
+    } while (Canzone_da_returnare->minuti < 0);
 
-    printf("Secondi durata:\n");
-    scanf("%d", &Canzone_da_returnare->secondi);
-    while (getchar() != '\n' );
+
+    while (getchar() != '\n');
+
+    do {
+        printf("Secondi durata:\n");
+        if (scanf("%d", &Canzone_da_returnare->secondi) != 1)
+        {
+            while (getchar() != '\n');
+            Canzone_da_returnare->secondi = -1;
+        }
+    } while (Canzone_da_returnare->secondi < 0 || Canzone_da_returnare->secondi > 59);
+
+
+    while (getchar() != '\n');
 
     return Canzone_da_returnare;
 }
