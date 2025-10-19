@@ -27,6 +27,7 @@ int main(void) {
         if (scanf("%d", &input) != 1)
         {
             while (getchar() != '\n' );
+            input=0;
         }
 
         //se si vuole aggiungere una nuova canzone
@@ -39,6 +40,13 @@ int main(void) {
             {
                 quantita_array+=10;
                 lista=realloc(lista,sizeof(struct Canzone*)*quantita_array);
+
+                if (lista==NULL)
+                {
+                    printf("Errore di re-allocazione\n");
+                    return 0;
+                }
+
             }
             lista[cont]=NuovaCanzone;   //la salva nell' array
                 cont++;                 //aumenta il contatore totale delle canzone
